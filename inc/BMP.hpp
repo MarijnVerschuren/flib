@@ -11,7 +11,9 @@
 
 class BMP : public file {
 public:
-	BMP(str_t fname, oflag_t flags, uint32_t mode = 0);
+	BMP(str_t fname, uint32_t mode = 666);
+
+	void open(oflag_t flags);
 
 	_ND _FI uint64_t size(void) const { return this->fsize; }
 private:

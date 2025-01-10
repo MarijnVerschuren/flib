@@ -62,23 +62,28 @@ typedef enum {
 
 class file {
 public:
-	file(str_t fname, oflag_t flags, uint32_t mode = 0);
-	~file() { ::close(this->fd); }
+	file(str_t fname, uint32_t permission = 666);
+
+	void open(oflag_t flags);
+	void close(void);
 
 	// TODO: functions support 64 bit?
-	_FI void read(void* const dst, uint64_t size, uint64_t offset) const	{ ::pread(this->fd, dst, size, offset); }
-	_FI void read(void* const dst, uint64_t size)							{ ::read(this->fd, dst, size); }
-	_FI void write(const void* const src, uint64_t size)					{ ::write(this->fd, src, size); }
+	_ND uint64_t size(void) const;
+	_ND uint64_t size(void);
 
 	_FI uint64_t tell(void)	const											{ return ::lseek(this->fd, 0, SEEK_CUR); }
 	_FI uint64_t seek(uint64_t offset, sflag_t mode = SEEK_CURRENT)			{ return ::lseek(this->fd, offset, mode); }
 
-	// TODO: size? not set in this class!! (can it be disabled for base class only?)
-	_ND _FI uint64_t size(void) const { return this->fsize; }
+	_FI void read(void* const dst, uint64_t size, uint64_t offset) const	{ ::pread(this->fd, dst, size, offset); }
+	_FI void read(void* const dst, uint64_t size)							{ ::read(this->fd, dst, size); }
+	// TODO: read u8, u16, u32, u64
+	_FI void write(const void* const src, uint64_t size)					{ ::write(this->fd, src, size); }
+
 protected:
 	str_t		fname = nullptr;
+	uint32_t	permission = 0;
+
 	int			fd =	-1;
-	uint64_t	fsize =	-1;
 };
 
 
