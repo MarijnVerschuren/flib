@@ -17,7 +17,8 @@
  */
 typedef enum {
 	NOT_FOUND,
-	MAGIC_MISMATCH
+	MAGIC_MISMATCH,
+	FILE_CORRUPTED
 } file_exception_t;
 
 template<file_exception_t T>
@@ -64,20 +65,27 @@ class file {
 public:
 	file(str_t fname, uint32_t permission = 666);
 
-	void open(oflag_t flags);
+	virtual void open(oflag_t flags);
 	void close(void);
 
-	// TODO: functions support 64 bit?
-	_ND uint64_t size(void) const;
-	_ND uint64_t size(void);
+	_ND uint32_t size(void) const;
+	_ND _FI uint32_t size(void)												{ return ::lseek(this->fd, 0, SEEK_END); }
 
-	_FI uint64_t tell(void)	const											{ return ::lseek(this->fd, 0, SEEK_CUR); }
-	_FI uint64_t seek(uint64_t offset, sflag_t mode = SEEK_CURRENT)			{ return ::lseek(this->fd, offset, mode); }
+	_ND _FI uint32_t tell(void)	const										{ return ::lseek(this->fd, 0, SEEK_CUR); }
+	_FI uint32_t seek(uint32_t offset, sflag_t mode = SEEK_CURRENT)			{ return ::lseek(this->fd, offset, mode); }
 
-	_FI void read(void* const dst, uint64_t size, uint64_t offset) const	{ ::pread(this->fd, dst, size, offset); }
-	_FI void read(void* const dst, uint64_t size)							{ ::read(this->fd, dst, size); }
-	// TODO: read u8, u16, u32, u64
-	_FI void write(const void* const src, uint64_t size)					{ ::write(this->fd, src, size); }
+	_FI void read(void* const dst, uint32_t size, uint32_t offset) const	{ ::pread(this->fd, dst, size, offset); }
+	_FI void read(void* const dst, uint32_t size)							{ ::read(this->fd, dst, size); }
+	_ND _FI uint8_t read_u8(void)											{ uint8_t data; ::read(this->fd, &data, 1); return data; }
+	_ND _FI uint8_t read_u8(uint32_t offset) const							{ uint8_t data; ::pread(this->fd, &data, 1, offset); return data; }
+	_ND _FI uint16_t read_u16(void)											{ uint16_t data; ::read(this->fd, &data, 2); return data; }
+	_ND _FI uint16_t read_u16(uint32_t offset) const						{ uint16_t data; ::pread(this->fd, &data, 2, offset); return data; }
+	_ND _FI uint32_t read_u32(void)											{ uint32_t data; ::read(this->fd, &data, 4); return data; }
+	_ND _FI uint32_t read_u32(uint32_t offset) const						{ uint32_t data; ::pread(this->fd, &data, 4, offset); return data; }
+	_ND _FI uint64_t read_u64(void)											{ uint64_t data; ::read(this->fd, &data, 8); return data; }
+	_ND _FI uint64_t read_u64(uint32_t offset) const						{ uint64_t data; ::pread(this->fd, &data, 8, offset); return data; }
+
+	_FI void write(const void* const src, uint32_t size)					{ ::write(this->fd, src, size); }
 
 protected:
 	str_t		fname = nullptr;

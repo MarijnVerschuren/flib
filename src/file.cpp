@@ -11,6 +11,7 @@
  */
 template<> str_t file_exception<NOT_FOUND>::what() const noexcept			{ return file; }
 template<> str_t file_exception<MAGIC_MISMATCH>::what() const noexcept		{ return file; }
+template<> str_t file_exception<FILE_CORRUPTED>::what() const noexcept		{ return file; }
 
 
 
@@ -33,14 +34,10 @@ void file::close(void) {
 	::close(this->fd); this->fd = -1;
 }
 
-uint64_t file::size(void) const {
-	uint64_t position = tell();
+uint32_t file::size(void) const {
+	uint32_t position = tell();
 	::lseek(this->fd, 0, SEEK_END);
-	uint64_t size = tell();
+	uint32_t size = tell();
 	::lseek(this->fd, position, SEEK_START);
 	return size;
-}
-uint64_t file::size(void) {
-	seek(0, SEEK_END);
-	return tell();
 }

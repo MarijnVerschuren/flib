@@ -7,6 +7,8 @@
 #include "file.hpp"
 
 #define BMP_MAGIC 0x4D42U
+#define BMP_DIB_SIZE 40
+
 
 
 class BMP : public file {
@@ -15,9 +17,19 @@ public:
 
 	void open(oflag_t flags);
 
-	_ND _FI uint64_t size(void) const { return this->fsize; }
 private:
-	uint64_t	fsize =	-1;
+	struct {
+		uint32_t width;
+		uint32_t height;
+		uint16_t planes;
+		uint16_t bits_per_pixel;
+		uint32_t compression;
+		uint32_t image_size;
+		uint32_t pixel_per_meter_x;
+		uint32_t pixel_per_meter_y;
+		uint32_t color_count;
+		uint32_t important_color_count;
+	} info_header;
 };
 
 

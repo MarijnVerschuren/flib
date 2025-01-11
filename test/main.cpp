@@ -5,7 +5,7 @@
 
 
 void test_txt(void) {
-	file f("../test/files/text.txt", READ_ONLY);
+	file f("../test/files/text.txt");
 
 	uint64_t fsize = f.size();
 	char* buf = (char*)malloc(fsize + 1);
@@ -16,11 +16,12 @@ void test_txt(void) {
 }
 
 void test_bmp(void) {
-	BMP bmp("../test/files/image.bmp", READ_ONLY);
+	BMP bmp("../test/files/image.bmp");
+	bmp.open(READ_ONLY);
 
-	uint64_t fsize = bmp.size();
+	uint32_t fsize = bmp.size();
 
-	printf("flib: bmp size: %lu\n", fsize);
+	printf("flib: bmp size: %u\n", fsize);
 }
 
 
