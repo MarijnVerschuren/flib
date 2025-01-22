@@ -18,26 +18,27 @@ template<> str_t file_exception<FILE_CORRUPTED>::what() const noexcept		{ return
 /*<!
  * file
  */
-file::file(str_t fname, uint32_t permission) {
+file_t::file_t(str_t fname, uint32_t permission) {
 	this->fname = fname;  // TODO: open seperate
 	this->permission = permission;
 }
 
-void file::open(oflag_t flags) {
+void file_t::open(oflag_t flags) {
 	this->fd = ::open(this->fname, flags, this->permission);
 	if (fd < 0) { throw file_exception<NOT_FOUND>(fname); }
 
 }
 
-void file::close(void) {
+void file_t::close(void) {
 	if (this->fd < 0) { return; }
 	::close(this->fd); this->fd = -1;
 }
 
-uint32_t file::size(void) const {
+uint32_t file_t::size(void) const {
 	uint32_t position = tell();
 	::lseek(this->fd, 0, SEEK_END);
 	uint32_t size = tell();
 	::lseek(this->fd, position, SEEK_START);
 	return size;
 }
+

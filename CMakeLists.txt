@@ -13,6 +13,7 @@ set(PROJECT_PY_BIND_DIR "src/py_bind")
 
 set(SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/file.cpp
+    ${PROJECT_SOURCE_DIR}/image.cpp
     ${PROJECT_SOURCE_DIR}/BMP.cpp
 )
 

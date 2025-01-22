@@ -7,6 +7,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #include "types.hpp"
 
@@ -32,6 +33,14 @@ public:
 	_ND str_t what() const noexcept override;
 };
 
+class memory_exception: public std::exception {
+private:
+	str_t func = nullptr;
+public:
+	explicit memory_exception(str_t func) { this->func = func; };
+	_ND str_t what() const noexcept override { return this->func; };
+};
+
 
 
 /*<!
@@ -53,6 +62,11 @@ typedef enum {
 	SYNC =			O_SYNC
 } oflag_t;
 
+constexpr oflag_t operator|(const oflag_t& a, const oflag_t& b) {
+	return (oflag_t)(((uint32_t)a) | ((uint32_t)b));
+}
+
+
 #undef SEEK_END
 typedef enum {
 	SEEK_START =	0U,
@@ -61,12 +75,15 @@ typedef enum {
 } sflag_t;
 
 
-class file {
+class file_t {
 public:
-	file(str_t fname, uint32_t permission = 666);
+	file_t(str_t fname, uint32_t permission = 0666);
 
 	virtual void open(oflag_t flags);
 	void close(void);
+
+	_ND _FI str_t name(void)												{ return this->fname; }
+	_ND _FI bool is_open(void)												{ return this->fd > -1; }
 
 	_ND uint32_t size(void) const;
 	_ND _FI uint32_t size(void)												{ return ::lseek(this->fd, 0, SEEK_END); }
@@ -85,7 +102,16 @@ public:
 	_ND _FI uint64_t read_u64(void)											{ uint64_t data; ::read(this->fd, &data, 8); return data; }
 	_ND _FI uint64_t read_u64(uint32_t offset) const						{ uint64_t data; ::pread(this->fd, &data, 8, offset); return data; }
 
+	_FI void write(const void* const src, uint32_t size, uint32_t offset)	{ ::pwrite(this->fd, src, size, offset); }
 	_FI void write(const void* const src, uint32_t size)					{ ::write(this->fd, src, size); }
+	_FI void write_u8(uint8_t data)											{ ::write(this->fd, &data, 1); }
+	_FI void write_u8(uint8_t data, uint32_t offset)						{ ::pwrite(this->fd, &data, 1, offset); }
+	_FI void write_u16(uint16_t data)										{ ::write(this->fd, &data, 2); }
+	_FI void write_u16(uint16_t data, uint32_t offset)						{ ::pwrite(this->fd, &data, 2, offset); }
+	_FI void write_u32(uint32_t data)										{ ::write(this->fd, &data, 4); }
+	_FI void write_u32(uint32_t data, uint32_t offset)						{ ::pwrite(this->fd, &data, 4, offset); }
+	_FI void write_u64(uint64_t data)										{ ::write(this->fd, &data, 8); }
+	_FI void write_u64(uint64_t data, uint32_t offset)						{ ::pwrite(this->fd, &data, 8, offset); }
 
 protected:
 	str_t		fname = nullptr;
